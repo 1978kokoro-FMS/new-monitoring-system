@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>법령 모니터링 시스템</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚖️ 법령 모니터링 시스템</h1>
+            <div class="header-info">
+                <span id="lastUpdate">마지막 업데이트: -</span>
+                <button id="refreshBtn" class="btn btn-primary">🔄 새로고침</button>
+            </div>
+        </header>
+
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-tab="dashboard">📊 대시보드</button>
+            <button class="tab-btn" data-tab="search">🔍 법령 검색</button>
+            <button class="tab-btn" data-tab="keywords">🔑 키워드 관리</button>
+            <button class="tab-btn" data-tab="changes">📝 변경사항</button>
+            <button class="tab-btn" data-tab="actions">✅ 조치사항</button>
+        </nav>
+
+        <!-- 대시보드 탭 -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>📊 통계</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalLaws">0</div>
+                            <div class="stat-label">모니터링 중인 법령</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="pendingChanges">0</div>
+                            <div class="stat-label">미검토 변경사항</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="activeKeywords">0</div>
+                            <div class="stat-label">활성 키워드</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="pendingActions">0</div>
+                            <div class="stat-label">대기 중인 조치</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📅 최근 변경사항</h3>
+                    <div id="recentChanges" class="list-container">
+                        <p class="no-data">변경사항이 없습니다.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚠️ 긴급 조치사항</h3>
+                    <div id="urgentActions" class="list-container">
+                        <p class="no-data">긴급 조치사항이 없습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 법령 검색 탭 -->
+        <div id="search" class="tab-content">
+            <div class="card">
+                <h3>🔍 법령 검색</h3>
+                <div class="search-form">
+                    <input type="text" id="searchInput" placeholder="법령명 또는 키워드를 입력하세요" class="input-field">
+                    <select id="searchType" class="select-field">
+                        <option value="lawNm">법령명</option>
+                        <option value="lawContent">법령내용</option>
+                    </select>
+                    <button id="searchBtn" class="btn btn-primary">검색</button>
+                </div>
+                <div id="searchResults" class="results-container">
+                    <p class="no-data">검색 결과가 여기에 표시됩니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 키워드 관리 탭 -->
+        <div id="keywords" class="tab-content">
+            <div class="card">
+                <h3>🔑 모니터링 키워드 관리</h3>
+                <div class="keyword-form">
+                    <input type="text" id="keywordInput" placeholder="키워드" class="input-field">
+                    <input type="text" id="categoryInput" placeholder="카테고리" class="input-field">
+                    <input type="text" id="descriptionInput" placeholder="설명" class="input-field">
+                    <button id="addKeywordBtn" class="btn btn-success">➕ 추가</button>
+                </div>
+                <div id="keywordsList" class="list-container">
+                    <p class="no-data">등록된 키워드가 없습니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 변경사항 탭 -->
+        <div id="changes" class="tab-content">
+            <div class="card">
+                <h3>📝 법령 변경사항</h3>
+                <div class="filter-bar">
+                    <select id="reviewFilter" class="select-field">
+                        <option value="all">전체</option>
+                        <option value="pending">미검토</option>
+                        <option value="reviewed">검토완료</option>
+                    </select>
+                    <button id="checkChangesBtn" class="btn btn-primary">🔄 변경사항 확인</button>
+                </div>
+                <div id="changesList" class="list-container">
+                    <p class="no-data">변경사항이 없습니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 조치사항 탭 -->
+        <div id="actions" class="tab-content">
+            <div class="card">
+                <h3>✅ 조치사항 관리</h3>
+                <div class="filter-bar">
+                    <select id="statusFilter" class="select-field">
+                        <option value="all">전체</option>
+                        <option value="PENDING">대기</option>
+                        <option value="IN_PROGRESS">진행중</option>
+                        <option value="COMPLETED">완료</option>
+                    </select>
+                    <select id="priorityFilter" class="select-field">
+                        <option value="all">모든 우선순위</option>
+                        <option value="HIGH">높음</option>
+                        <option value="MEDIUM">보통</option>
+                        <option value="LOW">낮음</option>
+                    </select>
+                </div>
+                <div id="actionsList" class="list-container">
+                    <p class="no-data">조치사항이 없습니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달: 법령 상세 -->
+    <div id="lawDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalLawName"></h2>
+            <div id="modalLawContent"></div>
+            <button id="addToMonitoringBtn" class="btn btn-success">모니터링 추가</button>
+        </div>
+    </div>
+
+    <!-- 모달: 조치사항 추가 -->
+    <div id="actionModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>조치사항 추가</h2>
+            <form id="actionForm">
+                <input type="hidden" id="actionLawChangeId">
+                <div class="form-group">
+                    <label>제목:</label>
+                    <input type="text" id="actionTitle" class="input-field" required>
+                </div>
+                <div class="form-group">
+                    <label>설명:</label>
+                    <textarea id="actionDescription" class="input-field" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>우선순위:</label>
+                    <select id="actionPriority" class="select-field">
+                        <option value="HIGH">높음</option>
+                        <option value="MEDIUM">보통</option>
+                        <option value="LOW">낮음</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>담당자:</label>
+                    <input type="text" id="actionAssignee" class="input-field">
+                </div>
+                <div class="form-group">
+                    <label>마감일:</label>
+                    <input type="date" id="actionDueDate" class="input-field">
+                </div>
+                <button type="submit" class="btn btn-primary">저장</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>처리 중...</p>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

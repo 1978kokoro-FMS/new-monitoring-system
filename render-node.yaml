@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: law-monitoring-system
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: LAW_API_KEY
+        value: lawmonitor2025
+    healthCheckPath: /

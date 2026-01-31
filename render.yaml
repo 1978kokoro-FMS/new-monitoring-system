@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: law-monitoring-system
+    env: static
+    buildCommand: echo "No build required"
+    staticPublishPath: .
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+      - path: /static
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
