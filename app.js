@@ -1,14 +1,10 @@
 // 법령 모니터링 시스템 애플리케이션
 
-// Supabase 클라이언트 초기화 (중복 방지)
-if (typeof window.supabaseClient === 'undefined') {
-    window.supabaseClient = window.supabase.createClient(
-        CONFIG.SUPABASE_URL,
-        CONFIG.SUPABASE_KEY
-    );
-}
-const supabase = window.supabaseClient;
-
+// Supabase 클라이언트 초기화 (중복 방지 - var 사용)
+var supabase = window.supabaseClient || (window.supabaseClient = window.supabase.createClient(
+    CONFIG.SUPABASE_URL,
+    CONFIG.SUPABASE_KEY
+));
 // 전역 상태
 const state = {
     currentTab: 'dashboard',
